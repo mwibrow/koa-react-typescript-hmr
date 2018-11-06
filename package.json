@@ -14,7 +14,7 @@
     "watch-server": "$(npm bin)/webpack --watch --env=server"
   },
   "author": "Mark Wibrow",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@material-ui/core": "^3.4.0",
     "canopi": "^1.3.1",
