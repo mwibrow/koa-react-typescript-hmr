@@ -1,31 +1,12 @@
-import canopi from 'canopi'
 import Koa from 'koa'
 import logger from 'koa-morgan'
 import staticCache from 'koa-static-cache'
 import { devMiddleware, hotMiddleware } from 'koa-webpack-middleware'
 import path from 'path'
-import { Writable } from 'stream'
 import webpack from 'webpack'
 
 import appConfig from '../../webpack/webpack.config.app'
 import config from './config'
-
-canopi.setOutputStream(process.stdout)
-const log = canopi('hmr-server')
-
-class RequestLogger extends Writable {
-  public stream: any
-  constructor(stream: any, ...args: any[]) {
-    super(...args)
-    this.stream = stream
-  }
-  public _write(chunk: object, enc: any, cb: (err: Error | null) => void) {
-    if (this.stream) {
-      this.stream.info(chunk.toString().trim())
-    }
-    cb(null)
-  }
-}
 
 const configureHMR = (app: Koa, webpackConfig: webpack.Configuration) => {
   const compiler: webpack.Compiler = webpack(webpackConfig)
@@ -59,21 +40,12 @@ const configureHMR = (app: Koa, webpackConfig: webpack.Configuration) => {
 const configure = () => {
   const app: Koa = new Koa()
 
-  app.use(logger('combined', { stream: new RequestLogger(log) }))
-
-  // Get request uid into logger.
-  app.use(async (ctx, next) => {
-    const id = ctx.headers['x-req-id']
-    ctx.request._reqId = id
-    ctx.request._log = log(`req-${id}`)
-    ctx.response.set('x-req-id', id)
-    await next()
-  })
+  app.use(logger('combined', { stream: process.stdout }))
 
   // Webpack
   configureHMR(app, appConfig)
 
-  // Mount routers
+  // Static cache.
   app.use(
     staticCache(path.join(__dirname, '/public/'), {
       buffer: !config.debug,
@@ -84,4 +56,6 @@ const configure = () => {
   return app
 }
 
-export { configure, log }
+export {
+  configure,
+}

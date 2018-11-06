@@ -1,4 +1,3 @@
-import canopi from 'canopi'
 import proxy from 'http-proxy-middleware'
 import Koa from 'koa'
 import connect from 'koa-connect'
@@ -6,35 +5,17 @@ import logger from 'koa-morgan'
 import Router from 'koa-router'
 import staticCache from 'koa-static-cache'
 import path from 'path'
-import { Writable } from 'stream'
 
 import config from './config'
 import processEnv from './env'
 import { configureApp } from './routes'
-
-canopi.setOutputStream(process.stdout)
-const log = canopi('hmr-server')
-
-class RequestLogger extends Writable {
-  public stream: any
-  constructor(stream: any, ...args: any[]) {
-    super(...args)
-    this.stream = stream
-  }
-  public _write(chunk: object, enc: any, cb: (err: Error | null) => void) {
-    if (this.stream) {
-      this.stream.info(chunk.toString().trim())
-    }
-    cb(null)
-  }
-}
 
 const isDevelopment = () => processEnv.NODE_ENV !== 'production'
 
 const configure = () => {
   const app = new Koa()
 
-  app.use(logger('combined', { stream: new RequestLogger(log) }))
+  app.use(logger('combined', { stream: process.stdout }))
 
   if (isDevelopment) {
     app.use(connect(proxy(
@@ -60,5 +41,4 @@ const configure = () => {
 
 export {
   configure,
-  log,
 }

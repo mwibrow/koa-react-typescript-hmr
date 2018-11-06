@@ -7,7 +7,7 @@ class Index extends React.Component {
     return (
       <div>
         <Typography variant='h4' gutterBottom>
-          It works! :)
+          It works! :) Hooray!
         </Typography>
       </div>
     )
